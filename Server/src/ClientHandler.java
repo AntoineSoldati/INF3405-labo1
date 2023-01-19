@@ -1,7 +1,11 @@
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class ClientHandler extends Thread {
 	private Socket socket; 
@@ -34,12 +38,25 @@ public class ClientHandler extends Thread {
 		
 		private String executeCommand(String input) {
 			String[] inputArr = input.split("\\s+");
+			String command = inputArr[0];
+			String argument = inputArr[1];
+			
 			String returnString = "";
-			switch (inputArr[0]) {
+			switch (command) {
 				case "cd" :
-					returnString = inputArr[1];
+					returnString = argument;
 					break;
 				case "ls" : 
+					String directoryFile = FileSystems.getDefault().getPath(".").toString();
+					File cwd = new File(directoryFile);
+					File[] files = cwd.listFiles();
+					for(File file : files) {
+						if(file.isFile())
+							returnString += "[File] ";
+						else
+							returnString += "[Folder] ";
+						returnString += file.getName() + "\n";
+					}
 					break;
 				case "mkdir" : 
 					returnString = inputArr[1];
