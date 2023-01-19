@@ -1,0 +1,48 @@
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.util.regex.*;
+public class Server {
+	private static ServerSocket Listener;
+	public static void main(String[] args) throws Exception {
+		int clientNumber = 0;
+		String serverAddress;
+		int serverPort;
+		
+		do {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+			System.out.println("Enter the server's IP address");
+		    serverAddress = reader.readLine();
+		    System.out.println("Enter the server's port");
+		    serverPort = Integer.parseInt(reader.readLine());
+		} while (!verifyIP(serverAddress) && !verifyPort(serverPort));
+	    
+		System.out.println(serverAddress);
+		System.out.println(serverPort);
+		Listener = new ServerSocket();
+		Listener.setReuseAddress(true);
+		InetAddress serverIP = InetAddress.getByName(serverAddress);
+		Listener.bind(new InetSocketAddress(serverIP, serverPort));
+		System.out.format("The server is running on %s:%d%n", serverAddress, serverPort);
+		try {
+			while (true) {
+				new ClientHandler(Listener.accept(), clientNumber++).start();
+			}
+		} finally {
+			Listener.close();
+		}
+	
+	}
+	
+	public static boolean verifyIP(String IP) {
+		String regex = "(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\\.){3}([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])"; //Source : https://www.geeksforgeeks.org/how-to-validate-an-ip-address-using-regex/
+		Pattern p = Pattern.compile(regex);
+		return p.matcher(IP).matches();
+	}
+	
+	public static boolean verifyPort(int port) {
+		return 5000 <= port && 5050 >= port;
+	}
+}

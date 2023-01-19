@@ -1,0 +1,26 @@
+import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.InputStreamReader;
+import java.net.Socket;
+public class Client {
+	private static Socket socket;
+	public static void main(String[] args) throws Exception {
+		String serverAddress = "127.0.0.1";
+		int port = 5000;
+		
+		do {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+			System.out.println("Enter the server's IP address");
+		    serverAddress = reader.readLine();
+		    System.out.println("Enter the server's port");
+		    serverPort = Integer.parseInt(reader.readLine());
+		} while (!verifyIP(serverAddress) && !verifyPort(serverPort));
+		
+		socket = new Socket(serverAddress, port);
+		System.out.format("Serveur lancé sur [%s:%d]", serverAddress, port);
+		DataInputStream in = new DataInputStream(socket.getInputStream());
+		String helloMessageFromServer = in.readUTF();
+		System.out.println(helloMessageFromServer);
+		socket.close();
+	}
+	}
