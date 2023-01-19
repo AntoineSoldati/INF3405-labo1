@@ -39,16 +39,20 @@ public class ClientHandler extends Thread {
 		private String executeCommand(String input) {
 			String[] inputArr = input.split("\\s+");
 			String command = inputArr[0];
-			String argument = inputArr[1];
+			String arg = "";
+			if(inputArr.length > 1)
+				arg = inputArr[1];
 			
 			String returnString = "";
+			
+			String directoryFile = FileSystems.getDefault().getPath(".").toString();
+			File cwd = new File(directoryFile);
+			
 			switch (command) {
 				case "cd" :
-					returnString = argument;
+					returnString = arg;
 					break;
 				case "ls" : 
-					String directoryFile = FileSystems.getDefault().getPath(".").toString();
-					File cwd = new File(directoryFile);
 					File[] files = cwd.listFiles();
 					for(File file : files) {
 						if(file.isFile())
@@ -59,7 +63,8 @@ public class ClientHandler extends Thread {
 					}
 					break;
 				case "mkdir" : 
-					returnString = inputArr[1];
+					File newDirectory = new File(cwd.getAbsolutePath() + "/" + arg);
+					returnString += newDirectory.mkdir() ? "Le dossier " + arg + " a été créé" : "Erreur lors de la création du dossier " + arg;
 					break;
 				case "upload" : 
 					returnString = inputArr[1];
