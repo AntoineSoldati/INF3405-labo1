@@ -23,7 +23,58 @@ public class ClientHandler extends Thread {
 				String input;
 				while (true) {
 					input = in.readUTF();
-					out.writeUTF(executeCommand(input));
+					String[] inputArr = input.split("\\s+");
+					String command = inputArr[0];
+					String arg = "";
+					if(inputArr.length > 1)
+						arg = inputArr[1];
+					
+					String directoryFile = FileSystems.getDefault().getPath(".").toString();
+					File cwd = new File(directoryFile);
+					
+					switch (command) {
+						case "cd" :
+							break;
+						case "ls" :
+							System.out.println("Commande ls à traiter");
+							String returnString = "";
+							File[] files = cwd.listFiles();
+							for(File file : files) {
+								if(file.isFile())
+									returnString += "[File] ";
+								else
+									returnString += "[Folder] ";
+								returnString += file.getName() + "\n";
+							}
+							out.writeUTF(returnString);
+							break;
+						case "mkdir" : 
+							System.out.println("Commande mkdir à traiter avec répertoire " + arg);
+							File newDirectory = new File(cwd.getAbsolutePath() + "/" + arg);
+							out.writeUTF(newDirectory.mkdir() ? 
+									"Le dossier " + arg + " a été créé" : 
+									"Erreur lors de la création du dossier " 
+									+ arg);
+							break;
+						case "upload" : 
+							out.writeUTF(inputArr[1]);
+							break;
+						case "download" :
+							out.writeUTF(inputArr[1]);
+							break;
+						case "exit" :
+							System.out.println("Commande exit à traiter");
+							try {
+								out.writeUTF("Vous avez été déconnecté avec succès.");
+								out.flush();
+								socket.close();						
+							} catch (IOException e) {
+								out.writeUTF("Erreur lors de la fermeture de la connexion");
+							}
+							break;
+						 default :
+							 break;
+					}
 					out.flush();
 				}
 			} catch (IOException e) {
@@ -34,47 +85,5 @@ public class ClientHandler extends Thread {
 				} catch (IOException e) {
 					System.out.println("Couldn't close a socket, what's going on?");}
 				System.out.println("Connection with client# " + clientNumber+ " closed");}
-		}
-		
-		private String executeCommand(String input) {
-			String[] inputArr = input.split("\\s+");
-			String command = inputArr[0];
-			String arg = "";
-			if(inputArr.length > 1)
-				arg = inputArr[1];
-			
-			String returnString = "";
-			
-			String directoryFile = FileSystems.getDefault().getPath(".").toString();
-			File cwd = new File(directoryFile);
-			
-			switch (command) {
-				case "cd" :
-					returnString = arg;
-					break;
-				case "ls" : 
-					File[] files = cwd.listFiles();
-					for(File file : files) {
-						if(file.isFile())
-							returnString += "[File] ";
-						else
-							returnString += "[Folder] ";
-						returnString += file.getName() + "\n";
-					}
-					break;
-				case "mkdir" : 
-					File newDirectory = new File(cwd.getAbsolutePath() + "/" + arg);
-					returnString += newDirectory.mkdir() ? "Le dossier " + arg + " a été créé" : "Erreur lors de la création du dossier " + arg;
-					break;
-				case "upload" : 
-					returnString = inputArr[1];
-					break;
-				case "download" :
-					returnString = inputArr[1];
-					break;
-				case "exit" :
-					break;
-			}
-			return returnString;
-		}
+		}			
 	}

@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.regex.Pattern;
@@ -24,13 +26,43 @@ public class Client {
 		DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 		String helloMessageFromServer = in.readUTF();
 		System.out.println(helloMessageFromServer);
+		String command = "";
 		
-		while (true) {
-		    String command = reader.readLine();
-		    out.writeUTF(command);
-		    System.out.println(in.readUTF());
+		while (!(command.equals("exit"))) {
+		    String input = reader.readLine();
+		    
+		    String[] inputArr = input.split("\\s+");
+			command = inputArr[0];
+			String arg = "";
+			if(inputArr.length > 1)
+				arg = inputArr[1];
+			
+			switch (command) {
+				case "cd" :
+					break;
+				case "ls" :
+					out.writeUTF(input);
+					System.out.println(in.readUTF());
+					break;
+				case "mkdir" : 
+					out.writeUTF(input);
+					System.out.println(in.readUTF());
+					break;
+				case "upload" : 
+					out.writeUTF(inputArr[1]);
+					break;
+				case "download" :
+					out.writeUTF(inputArr[1]);
+					break;
+				case "exit" :
+					out.writeUTF(command);
+					System.out.println(in.readUTF());
+					break;
+				 default :
+					 break;
+			}
 		}
-		//socket.close();
+		socket.close();
 	}
 	
 	public static boolean verifyIP(String IP) {
