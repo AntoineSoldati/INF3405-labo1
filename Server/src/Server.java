@@ -16,7 +16,12 @@ public class Server {
 			System.out.println("Enter the server's IP address");
 		    serverAddress = reader.readLine();
 		    System.out.println("Enter the server's port");
-		    serverPort = Integer.parseInt(reader.readLine());
+		    try {
+				serverPort = Integer.parseInt(reader.readLine());
+			}
+			catch(Exception erreur) {
+				serverPort = 0;
+			}
 		} while (!verifyIP(serverAddress) || !verifyPort(serverPort));
 	    
 		Listener = new ServerSocket();
