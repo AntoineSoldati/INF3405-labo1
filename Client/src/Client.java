@@ -10,17 +10,29 @@ public class Client {
 	private static Socket socket;
 	public static void main(String[] args) throws Exception {
 		String serverAddress;
-		int port;
+		Integer port;
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		
 		do {
 			System.out.println("Enter the server's IP address");
 		    serverAddress = reader.readLine();
 		    System.out.println("Enter the server's port");
-		    port = Integer.parseInt(reader.readLine());
+			try {
+				port = Integer.parseInt(reader.readLine());
+			}
+			catch(Exception erreur) {
+				port = 0;
+			}
 		} while (!verifyIP(serverAddress) || !verifyPort(port));
 		
-		socket = new Socket(serverAddress, port);
+		try {
+			socket = new Socket(serverAddress, port);
+		}
+		catch(Exception erreur) {
+			System.out.println("Oupsi, connection to server failed");
+			System.exit(0);
+		}
+		
 		System.out.format("Serveur lancé sur [%s:%d]", serverAddress, port);
 		DataInputStream in = new DataInputStream(socket.getInputStream());
 		DataOutputStream out = new DataOutputStream(socket.getOutputStream());
