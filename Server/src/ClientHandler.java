@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ClientHandler extends Thread {
 	private Socket socket; 
@@ -34,9 +36,10 @@ public class ClientHandler extends Thread {
 					
 					switch (command) {
 						case "cd" :
+							System.out.println(getHeader() + " cd " + arg);
 							break;
 						case "ls" :
-							System.out.println("Commande ls à traiter");
+							System.out.println(getHeader() + " ls");
 							String returnString = "";
 							File[] files = cwd.listFiles();
 							for(File file : files) {
@@ -49,7 +52,7 @@ public class ClientHandler extends Thread {
 							out.writeUTF(returnString);
 							break;
 						case "mkdir" : 
-							System.out.println("Commande mkdir à traiter avec répertoire " + arg);
+							System.out.println(getHeader() + " mkdir " + arg);
 							File newDirectory = new File(cwd.getAbsolutePath() + "/" + arg);
 							out.writeUTF(newDirectory.mkdir() ? 
 									"Le dossier " + arg + " a été créé" : 
@@ -57,13 +60,15 @@ public class ClientHandler extends Thread {
 									+ arg);
 							break;
 						case "upload" : 
+							System.out.println(getHeader() + " upload " + arg);
 							out.writeUTF(inputArr[1]);
 							break;
 						case "download" :
+							System.out.println(getHeader() + " download " + arg);
 							out.writeUTF(inputArr[1]);
 							break;
 						case "exit" :
-							System.out.println("Commande exit à traiter");
+							System.out.println(getHeader() + " exit");
 							try {
 								out.writeUTF("Vous avez été déconnecté avec succès.");
 								out.flush();
@@ -85,5 +90,11 @@ public class ClientHandler extends Thread {
 				} catch (IOException e) {
 					System.out.println("Couldn't close a socket, what's going on?");}
 				System.out.println("Connection with client# " + clientNumber+ " closed");}
-		}			
+		}	
+		
+		private String getHeader() {
+			DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd@HH:mm:ss");
+			LocalDateTime now = LocalDateTime.now();
+			return "[" + socket.getInetAddress().getHostAddress() + ":" + Integer.toString(socket.getPort()) + " - " + dtf.format(now) + "]";
+		}
 	}
